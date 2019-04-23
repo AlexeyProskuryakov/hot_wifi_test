@@ -1,0 +1,49 @@
+version: '3.3'
+
+services:
+  app:
+    image: hotwifi_test:0.1
+    container_name: app
+    restart: always
+    build: ./hot_wifi_test
+    ports:
+      - 8080:8080
+    environment:
+      - HEADER_NAME=Auth-Token
+      - MONGO_HOST=mongo
+      - MONGO_PORT=27017
+      - MONGO_DB=hot_wifi
+      - MONGO_USER=hw
+      - MONGO_PWD=paassword
+      - SESSION_TTL=3600
+      - PASSWORD_TTL=360000
+      - SUPERVISOR_LOGIN=root
+      - SUPERVISOR_PASSWORD=root
+      - HOST=0.0.0.0
+      - PORT=8080
+    depends_on:
+      - mongo
+    networks:
+      - bridget
+
+  mongo:
+    image: mongo
+    restart: always
+    container_name: mongo
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=secret_pwd
+      - MONGO_INITDB_DATABASE=hot_wifi
+    volumes:
+      - data-vol:/data/db
+      - ./db/scripts:/docker-entrypoint-initdb.d
+    networks:
+      - bridget
+    restart: always
+    
+networks:
+  bridget:
+    driver: bridge
+
+volumes:
+  data-vol:
